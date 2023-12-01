@@ -1,0 +1,9 @@
+[package]
+name = "aoc-2023-tests"
+authors = ["Perjéssy, Lóránt"]
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aoc-2023 = { path = "../aoc-2023" }
+rstest = "0.18.2"
