@@ -1,9 +1,9 @@
 use std::path::Path;
 use rstest::rstest;
+use aoc_2023::solution_from;
 use aoc_2023::day02a::parse_record;
 use aoc_2023::day02a::parse_set;
 use aoc_2023::day02a::solution;
-use aoc_2023::day02a::solution_from;
 use aoc_2023::day02a::Record;
 use aoc_2023::day02a::Set;
 
@@ -63,7 +63,7 @@ fn example_is_correct()
 fn solution_is_correct()
 {
 	let path = Path::new("../aoc-2023/input-02");
-	let actual = solution_from(&path);
+	let actual = solution_from(&path, solution);
 
 	assert_eq!(actual, 2285);
 }
