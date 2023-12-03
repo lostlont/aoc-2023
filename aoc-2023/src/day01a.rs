@@ -1,8 +1,3 @@
-use std::fs::File;
-use std::io::BufRead;
-use std::io::BufReader;
-use std::path::Path;
-
 pub fn filter_numbers(text: &str) -> Vec<u32>
 {
 	text
@@ -30,26 +25,4 @@ pub fn solution(input: &Vec<&str>) -> u32
 		.map(filter_numbers)
 		.map(|numbers| get_calibration_value(&numbers))
 		.sum()
-}
-
-pub fn solution_from(path: &Path) -> u32
-{
-	let file = File::open(&path)
-		.expect(
-			&format!(
-				"Couldn't open file {}!",
-				path.display()));
-	let reader = BufReader::new(file);
-	let input = reader
-		.lines()
-		.map(
-			|line| line.expect("Couldn't read line!"))
-		.collect::<Vec<_>>();
-
-	let input = input
-		.iter()
-		.map(|line| line.as_ref())
-		.collect();
-
-	solution(&input)
 }

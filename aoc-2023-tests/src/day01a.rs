@@ -1,9 +1,9 @@
 use std::path::Path;
 use rstest::*;
+use aoc_2023::solution_from;
 use aoc_2023::day01a::filter_numbers;
 use aoc_2023::day01a::get_calibration_value;
 use aoc_2023::day01a::solution;
-use aoc_2023::day01a::solution_from;
 
 #[rstest]
 #[case("seven7seven", &vec![7])]
@@ -45,7 +45,7 @@ fn example_is_correct()
 fn solution_is_correct()
 {
 	let path = Path::new("../aoc-2023/input-01");
-	let actual = solution_from(&path);
+	let actual = solution_from(&path, solution);
 
 	assert_eq!(actual, 55621);
 }
