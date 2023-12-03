@@ -7,6 +7,7 @@ pub mod day01a;
 pub mod day01b;
 pub mod day02a;
 pub mod day02b;
+pub mod day03a;
 
 pub fn solution_from(path: &Path, solution: impl Fn(&Vec<&str>) -> u32) -> u32
 {
