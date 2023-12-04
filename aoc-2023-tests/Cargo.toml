@@ -5,5 +5,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-aoc-2023 = { path = "../aoc-2023" }
+maplit = "1.0.2"
 rstest = "0.18.2"
+aoc-2023 = { path = "../aoc-2023" }
