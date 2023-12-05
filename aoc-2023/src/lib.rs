@@ -11,8 +11,9 @@ pub mod day03a;
 pub mod day03b;
 pub mod day04a;
 pub mod day04b;
+pub mod day05a;
 
-pub fn solution_from(path: &Path, solution: impl Fn(&Vec<&str>) -> u32) -> u32
+pub fn solution_from<T>(path: &Path, solution: impl Fn(&Vec<&str>) -> T) -> T
 {
 	let file = File::open(&path)
 		.expect(
