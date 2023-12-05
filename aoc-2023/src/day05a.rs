@@ -64,7 +64,7 @@ pub fn parse_mapping(input: &str) -> Mapping
 	}
 }
 
-fn expect_i64(input: &str) -> Num
+pub fn expect_i64(input: &str) -> Num
 {
 	input
 		.parse::<Num>()

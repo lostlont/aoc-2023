@@ -7,3 +7,4 @@
 #[cfg(test)] mod day04a;
 #[cfg(test)] mod day04b;
 #[cfg(test)] mod day05a;
+#[cfg(test)] mod day05b;
