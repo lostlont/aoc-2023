@@ -74,43 +74,14 @@ impl From<&str> for Hand
 {
 	fn from(labels: &str) -> Self
 	{
-		let mut tuples: [Vec<Label>; 5] = (0..5)
-			.map(|_| vec![])
-			.collect::<Vec<_>>()
-			.try_into()
-			.expect("Tuples should have five elements!");
-
 		let labels = labels
 			.chars()
 			.map(Label::from)
 			.collect_vec();
 
-		labels
-			.iter()
-			.cloned()
-			.counts()
-			.iter()
-			.for_each(|(&label, count)| tuples[count - 1].push(label));
+		let tuples = tuples_from_labels(&labels);
 
-		tuples
-			.iter_mut()
-			.for_each(|labels| labels.sort());
-
-		let counts = tuples
-			.iter()
-			.map(|t| t.len())
-			.collect::<Vec<_>>();
-		let hand_type = match counts.as_slice()
-		{
-			[5, 0, 0, 0, 0] => Type::HighCard,
-			[3, 1, 0, 0, 0] => Type::OnePair,
-			[1, 2, 0, 0, 0] => Type::TwoPair,
-			[2, 0, 1, 0, 0] => Type::ThreeOfAKind,
-			[0, 1, 1, 0, 0] => Type::FullHouse,
-			[1, 0, 0, 1, 0] => Type::FourOfAKind,
-			[0, 0, 0, 0, 1] => Type::FiveOfAKind,
-			counts => panic!("Invalid hand with card counts {counts:?}!"),
-		};
+		let hand_type = get_hand_type(&tuples);
 
 		Self
 		{
@@ -118,6 +89,52 @@ impl From<&str> for Hand
 			tuples,
 			hand_type,
 		}
+	}
+}
+
+pub fn tuples_from_labels(labels: &Vec<Label>) -> [Vec<Label>; 5]
+{
+	let mut tuples = empty_tuples();
+
+	labels
+		.iter()
+		.cloned()
+		.counts()
+		.iter()
+		.for_each(|(&label, count)| tuples[count - 1].push(label));
+
+	tuples
+		.iter_mut()
+		.for_each(|labels| labels.sort());
+
+	tuples
+}
+
+fn empty_tuples() -> [Vec<Label>; 5]
+{
+	(0..5)
+		.map(|_| vec![])
+		.collect::<Vec<_>>()
+		.try_into()
+		.expect("Tuples should have five elements!")
+}
+
+pub fn get_hand_type(tuples: &[Vec<Label>; 5]) -> Type
+{
+	let counts = tuples
+		.iter()
+		.map(|t| t.len())
+		.collect::<Vec<_>>();
+	match counts.as_slice()
+	{
+		[5, 0, 0, 0, 0] => Type::HighCard,
+		[3, 1, 0, 0, 0] => Type::OnePair,
+		[1, 2, 0, 0, 0] => Type::TwoPair,
+		[2, 0, 1, 0, 0] => Type::ThreeOfAKind,
+		[0, 1, 1, 0, 0] => Type::FullHouse,
+		[1, 0, 0, 1, 0] => Type::FourOfAKind,
+		[0, 0, 0, 0, 1] => Type::FiveOfAKind,
+		counts => panic!("Invalid hand with card counts {counts:?}!"),
 	}
 }
 
@@ -142,7 +159,7 @@ impl Ord for Hand
 			}
 		}
 
-		return Ordering::Equal;
+		Ordering::Equal
 	}
 }
 

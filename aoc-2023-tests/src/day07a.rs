@@ -66,7 +66,8 @@ fn bid_from_str_has_correct_hand()
 {
 	let actual = Bid::from("32T3K 765").hand;
 
-	let expected = Hand{
+	let expected = Hand
+	{
 		labels: vec![Label::Three, Label::Two, Label::Ten, Label::Three, Label::King],
 		tuples: [vec![Label::Two, Label::Ten, Label::King], vec![Label::Three], vec![], vec![], vec![]],
 		hand_type: Type::OnePair,
