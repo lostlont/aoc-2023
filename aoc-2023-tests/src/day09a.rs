@@ -35,9 +35,9 @@ fn derive_works(#[case] values: Vec<Num>, #[case] expected: Vec<Num>)
 #[case(vec![0, 3, 6, 9, 12, 15], 18)]
 #[case(vec![1, 3, 6, 10, 15, 21], 28)]
 #[case(vec![10, 13, 16, 21, 30, 45], 68)]
-fn extrapolate_works(#[case] input: Vec<Num>, #[case] expected: Num)
+fn extrapolate_works(#[case] values: Vec<Num>, #[case] expected: Num)
 {
-	let actual = extrapolate(&input);
+	let actual = extrapolate(&values);
 
 	assert_eq!(actual, expected);
 }
