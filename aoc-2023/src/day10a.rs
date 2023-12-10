@@ -73,14 +73,36 @@ impl Map
 		}
 	}
 
+	pub fn width(&self) -> usize
+	{
+		self.width
+	}
+
+	pub fn height(&self) -> usize
+	{
+		self.height
+	}
+
 	pub fn starting_position(&self) -> Position
 	{
 		self.starting_position
 	}
 
-	pub fn at(&self, position: Position) -> Pipe
+	pub fn at(&self, position: Position) -> Option<Pipe>
 	{
-		self.values[(position.y as usize) * self.width + (position.x as usize)]
+		match self.is_valid(position)
+		{
+			true => Some(self.values[(position.y as usize) * self.width + (position.x as usize)]),
+			false => None,
+		}
+	}
+
+	fn is_valid(&self, position: Position) -> bool
+	{
+		0 <= position.x &&
+		position.x < self.width as i32 &&
+		0 <= position.y &&
+		position.y < self.height as i32
 	}
 }
 
@@ -88,8 +110,8 @@ impl From<&Vec<&str>> for Map
 {
 	fn from(value: &Vec<&str>) -> Self
 	{
-		let width = value.len();
-		let height = value[0].len();
+		let width = value[0].len();
+		let height = value.len();
 
 		let values = value
 			.iter()
@@ -130,10 +152,16 @@ pub fn is_pipe_connected_to(pipe: Pipe, to: Position) -> bool
 	}
 }
 
-pub fn are_pipes_connected(map: &Map, pipe1: Position, pipe2: Position) -> bool
+pub fn are_pipes_connected(map: &Map, position1: Position, position2: Position) -> bool
 {
-	is_pipe_connected_to(map.at(pipe1), Position{ x: pipe2.x - pipe1.x, y: pipe2.y - pipe1.y }) &&
-	is_pipe_connected_to(map.at(pipe2), Position{ x: pipe1.x - pipe2.x, y: pipe1.y - pipe2.y })
+	match (map.at(position1), map.at(position2))
+	{
+		(Some(pipe1), Some(pipe2)) =>
+			is_pipe_connected_to(pipe1, Position{ x: position2.x - position1.x, y: position2.y - position1.y }) &&
+			is_pipe_connected_to(pipe2, Position{ x: position1.x - position2.x, y: position1.y - position2.y }),
+
+		_ => false,
+	}
 }
 
 pub fn out_direction(pipe: Pipe, in_direction: Position) -> Position
@@ -156,7 +184,7 @@ pub fn out_direction(pipe: Pipe, in_direction: Position) -> Position
 	}
 }
 
-pub fn traverse(map: &Map, mut from: Position, mut direction: Position) -> Option<u32>
+pub fn traverse(map: &Map, mut from: Position, mut direction: Position) -> Option<Vec<Position>>
 {
 	let mut to = Position{ x: from.x + direction.x, y: from.y + direction.y };
 	if !are_pipes_connected(map, from, to)
@@ -164,18 +192,24 @@ pub fn traverse(map: &Map, mut from: Position, mut direction: Position) -> Optio
 		return None;
 	}
 
-	let mut result = 0;
+	let mut result = vec![];
 	let mut run = true;
 	while run
 	{
+		result.push(from);
 		from = Position{ x: from.x + direction.x, y: from.y + direction.y };
-		if map.at(from) == Pipe::StartingPosition
+		let from_pipe = map.at(from);
+		if from_pipe == None
+		{
+			run = false;
+		}
+		if from_pipe == Some(Pipe::StartingPosition)
 		{
 			run = false;
 		}
 		else
 		{
-			direction = out_direction(map.at(from), direction);
+			direction = out_direction(from_pipe.unwrap(), direction);
 
 			to = Position{ x: from.x + direction.x, y: from.y + direction.y };
 			if !are_pipes_connected(map, from, to)
@@ -183,22 +217,25 @@ pub fn traverse(map: &Map, mut from: Position, mut direction: Position) -> Optio
 				return None;
 			}
 		}
-
-		result += 1;
 	}
 
 	Some(result)
 }
 
+pub fn find_route(map: &Map) -> Vec<Position>
+{
+	[WEST, EAST, NORTH, SOUTH]
+		.iter()
+		.cloned()
+		.find_map(|d| traverse(&map, map.starting_position(), d))
+		.expect("Map should be traversable!")
+}
+
 pub fn solution(input: &Vec<&str>) -> u32
 {
 	let map = Map::from(input);
-	let length = [WEST, EAST, NORTH, SOUTH]
-		.iter()
-		.cloned()
-		.filter_map(|d| traverse(&map, map.starting_position(), d))
-		.next()
-		.expect("Map should be traversable!");
+	let length = find_route(&map)
+		.len();
 
-	length / 2
+	length as u32 / 2
 }

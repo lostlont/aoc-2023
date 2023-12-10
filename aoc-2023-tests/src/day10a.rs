@@ -1,5 +1,4 @@
 use std::path::Path;
-use rstest::fixture;
 use rstest::rstest;
 use aoc_2023::solution_from;
 use aoc_2023::day10a::solution;
@@ -8,36 +7,35 @@ use aoc_2023::day10a::Map;
 use aoc_2023::day10a::Pipe;
 use aoc_2023::day10a::Position;
 
-const EXAMPLE_1_SIMPLE_INPUT: &str =
+pub const EXAMPLE_1_SIMPLE_INPUT: &str =
 ".....
 .S-7.
 .|.|.
 .L-J.
 .....";
 
-const EXAMPLE_1_COMPLEX_INPUT: &str =
+pub const EXAMPLE_1_COMPLEX_INPUT: &str =
 "-L|F7
 7S-7|
 L|7||
 -L-J|
 L|-JF";
 
-const EXAMPLE_2_SIMPLE_INPUT: &str =
+pub const EXAMPLE_2_SIMPLE_INPUT: &str =
 "..F7.
 .FJ|.
 SJ.L7
 |F--J
 LJ...";
 
-const EXAMPLE_2_COMPLEX_INPUT: &str =
+pub const EXAMPLE_2_COMPLEX_INPUT: &str =
 "7-F7-
 .FJ|7
 SJLL7
 |F--J
 LJ.LJ";
 
-#[fixture]
-fn example_1_simple_map() -> Map
+pub fn example_1_simple_map() -> Map
 {
 	let values = [
 		Pipe::Ground, Pipe::Ground, Pipe::Ground, Pipe::Ground, Pipe::Ground,
@@ -51,8 +49,37 @@ fn example_1_simple_map() -> Map
 	Map::new(values, 5, 5, Position{ x: 1, y: 1 })
 }
 
-#[fixture]
-fn example_1_complex_map() -> Map
+pub fn example_1_south_route() -> Vec<Position>
+{
+	vec!
+	[
+		Position{ x: 1, y: 1 },
+		Position{ x: 1, y: 2 },
+		Position{ x: 1, y: 3 },
+		Position{ x: 2, y: 3 },
+		Position{ x: 3, y: 3 },
+		Position{ x: 3, y: 2 },
+		Position{ x: 3, y: 1 },
+		Position{ x: 2, y: 1 },
+	]
+}
+
+pub fn example_1_east_route() -> Vec<Position>
+{
+	vec!
+	[
+		Position{ x: 1, y: 1 },
+		Position{ x: 2, y: 1 },
+		Position{ x: 3, y: 1 },
+		Position{ x: 3, y: 2 },
+		Position{ x: 3, y: 3 },
+		Position{ x: 2, y: 3 },
+		Position{ x: 1, y: 3 },
+		Position{ x: 1, y: 2 },
+	]
+}
+
+pub fn example_1_complex_map() -> Map
 {
 	let values = [
 		Pipe::Horizontal, Pipe::BendNorthEast, Pipe::Vertical, Pipe::BendSouthEast, Pipe::BendSouthWest,
@@ -106,12 +133,12 @@ fn map_from_vec_str_works()
 	example_1_simple_map(),
 	Position{ x: 1, y: 1 },
 	Position{ x: 0, y: 1 },
-	Some(8))]
+	Some(example_1_south_route()))]
 #[case(
 	example_1_simple_map(),
 	Position{ x: 1, y: 1 },
 	Position{ x: 1, y: 0 },
-	Some(8))]
+	Some(example_1_east_route()))]
 #[case(
 	example_1_complex_map(),
 	Position{ x: 1, y: 1 },
@@ -126,13 +153,13 @@ fn map_from_vec_str_works()
 	example_1_complex_map(),
 	Position{ x: 1, y: 1 },
 	Position{ x: 1, y: 0 },
-	Some(8))]
+	Some(example_1_east_route()))]
 #[case(
 	example_1_complex_map(),
 	Position{ x: 1, y: 1 },
 	Position{ x: 0, y: 1 },
-	Some(8))]
-fn traverse_works(#[case] map: Map, #[case] from: Position, #[case] direction: Position, #[case] expected: Option<u32>)
+	Some(example_1_south_route()))]
+fn traverse_works(#[case] map: Map, #[case] from: Position, #[case] direction: Position, #[case] expected: Option<Vec<Position>>)
 {
 	let actual = traverse(&map, from, direction);
 
@@ -144,7 +171,7 @@ fn traverse_works(#[case] map: Map, #[case] from: Position, #[case] direction: P
 #[case(EXAMPLE_1_COMPLEX_INPUT, 4)]
 #[case(EXAMPLE_2_SIMPLE_INPUT, 8)]
 #[case(EXAMPLE_2_COMPLEX_INPUT, 8)]
-fn example_1_simple_is_correct(#[case] input: &str, #[case] expected: u32)
+fn example_is_correct(#[case] input: &str, #[case] expected: u32)
 {
 	let input = input
 		.split('\n')
