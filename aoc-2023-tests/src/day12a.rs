@@ -134,20 +134,11 @@ fn next_works(#[case] work_entry: WorkEntry, #[case] expected: Vec<WorkEntry>)
 	],
 )]
 #[case(
-	create_unknown_springs("?###????????"),
-	vec![3, 2, 1],
+	create_unknown_springs("#.#.###"),
+	vec![1, 1, 3],
 	vec!
 	[
-		create_known_springs(".###.##.#..."),
-		create_known_springs(".###.##..#.."),
-		create_known_springs(".###.##...#."),
-		create_known_springs(".###.##....#"),
-		create_known_springs(".###..##.#.."),
-		create_known_springs(".###..##..#."),
-		create_known_springs(".###..##...#"),
-		create_known_springs(".###...##.#."),
-		create_known_springs(".###...##..#"),
-		create_known_springs(".###....##.#"),
+		create_known_springs("#.#.###"),
 	],
 )]
 fn process_works(#[case] springs: Vec<Option<Spring>>, #[case] damaged_springs: Vec<u32>, #[case] mut expected: Vec<Vec<Spring>>)

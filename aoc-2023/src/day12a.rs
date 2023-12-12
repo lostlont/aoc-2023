@@ -1,5 +1,7 @@
 use itertools::Itertools;
 
+pub type Count = u64;
+
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Spring
 {
@@ -176,7 +178,7 @@ pub fn process(
 	}
 }
 
-pub fn solution(input: &Vec<&str>) -> u32
+pub fn solution(input: &Vec<&str>) -> Count
 {
 	input
 		.iter()
