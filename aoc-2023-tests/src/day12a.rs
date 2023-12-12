@@ -177,8 +177,7 @@ fn example_is_correct()
 
 	let actual = solution(&input);
 
-	let expected = 21;
-	assert_eq!(actual, expected);
+	assert_eq!(actual, 21);
 }
 
 #[test]
