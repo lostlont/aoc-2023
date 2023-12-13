@@ -33,6 +33,16 @@ impl Image
 			None
 		}
 	}
+
+	pub fn get_width(&self) -> usize
+	{
+		self.width
+	}
+
+	pub fn get_height(&self) -> usize
+	{
+		self.height
+	}
 }
 
 impl From<&[&str]> for Image
@@ -50,8 +60,9 @@ impl From<&[&str]> for Image
 	}
 }
 
-pub fn is_mirrored_by_horizontal_line_at(image: &Image, at: usize) -> bool
+pub fn is_mirrored_by_horizontal_line_at(image: &Image, at: usize, diff: u32) -> bool
 {
+	let mut diffs = 0;
 	let at = at as i32;
 	let repeated_height = i32::min(at, image.height as i32 - at);
 
@@ -68,16 +79,22 @@ pub fn is_mirrored_by_horizontal_line_at(image: &Image, at: usize) -> bool
 			let bottom_y = (at + y) as usize;
 			if image.at(x, top_y) != image.at(x, bottom_y)
 			{
-				return false;
+				diffs += 1;
+
+				if diffs > diff
+				{
+					return false;
+				}
 			}
 		}
 	}
 
-	return true;
+	return diffs == diff;
 }
 
-pub fn is_mirrored_by_vertical_line_at(image: &Image, at: usize) -> bool
+pub fn is_mirrored_by_vertical_line_at(image: &Image, at: usize, diff: u32) -> bool
 {
+	let mut diffs = 0;
 	let at = at as i32;
 	let repeated_width = i32::min(at, image.width as i32 - at);
 
@@ -94,19 +111,24 @@ pub fn is_mirrored_by_vertical_line_at(image: &Image, at: usize) -> bool
 			let right_x = (at + x) as usize;
 			if image.at(left_x, y) != image.at(right_x, y)
 			{
-				return false;
+				diffs += 1;
+
+				if diffs > diff
+				{
+					return false;
+				}
 			}
 		}
 	}
 
-	return true;
+	return diffs == diff;
 }
 
-pub fn score(image: &Image) -> u32
+pub fn score(image: &Image, diff: u32) -> u32
 {
 	for y in 1..=image.height-1
 	{
-		if is_mirrored_by_horizontal_line_at(image, y)
+		if is_mirrored_by_horizontal_line_at(image, y, diff)
 		{
 			return 100 * y as u32;
 		}
@@ -114,7 +136,7 @@ pub fn score(image: &Image) -> u32
 
 	for x in 1..=image.width-1
 	{
-		if is_mirrored_by_vertical_line_at(image, x)
+		if is_mirrored_by_vertical_line_at(image, x, diff)
 		{
 			return x as u32;
 		}
@@ -123,7 +145,7 @@ pub fn score(image: &Image) -> u32
 	panic!("Invalid image!");
 }
 
-pub fn solution(input: &Vec<&str>) -> u32
+pub fn solution(input: &Vec<&str>, diff: u32) -> u32
 {
 	let split_indices = input
 		.iter()
@@ -141,6 +163,6 @@ pub fn solution(input: &Vec<&str>) -> u32
 
 	split_index_pairs
 		.map(|(a, b)| Image::from(&input[((a+1) as usize)..(b as usize)]))
-		.map(|image| score(&image))
+		.map(|image| score(&image, diff))
 		.sum()
 }

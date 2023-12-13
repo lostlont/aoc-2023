@@ -77,7 +77,7 @@ fn is_mirrored_by_horizontal_line_at_finds_normal_mirrored(#[case] at: usize, #[
 		"#..#",
 	]);
 
-	let actual = is_mirrored_by_horizontal_line_at(&image, at);
+	let actual = is_mirrored_by_horizontal_line_at(&image, at, 0);
 
 	assert_eq!(actual, expected);
 }
@@ -98,7 +98,7 @@ fn is_mirrored_by_horizontal_line_at_finds_offseted_mirrored(#[case] at: usize, 
 		"#..#",
 	]);
 
-	let actual = is_mirrored_by_horizontal_line_at(&image, at);
+	let actual = is_mirrored_by_horizontal_line_at(&image, at, 0);
 
 	assert_eq!(actual, expected);
 }
@@ -116,7 +116,7 @@ fn is_mirrored_by_vertical_line_at_finds_normal_mirrored(#[case] at: usize, #[ca
 		"#..#",
 	]);
 
-	let actual = is_mirrored_by_vertical_line_at(&image, at);
+	let actual = is_mirrored_by_vertical_line_at(&image, at, 0);
 
 	assert_eq!(actual, expected);
 }
@@ -136,7 +136,7 @@ fn is_mirrored_by_vertical_line_at_finds_offseted_mirrored(#[case] at: usize, #[
 		"..#..#.",
 	]);
 
-	let actual = is_mirrored_by_vertical_line_at(&image, at);
+	let actual = is_mirrored_by_vertical_line_at(&image, at, 0);
 
 	assert_eq!(actual, expected);
 }
@@ -152,7 +152,7 @@ fn score_finds_horizontal_mirror()
 		"#..#",
 	]);
 
-	let actual = score(&image);
+	let actual = score(&image, 0);
 
 	assert_eq!(actual, 300);
 }
@@ -165,7 +165,7 @@ fn score_finds_vertical_mirror()
 		"..#..#.",
 	]);
 
-	let actual = score(&image);
+	let actual = score(&image, 0);
 
 	assert_eq!(actual, 4);
 }
@@ -194,7 +194,7 @@ fn example_is_correct()
 		.map(|l| l.trim())
 		.collect::<Vec<_>>();
 
-	let actual = solution(&input);
+	let actual = solution(&input, 0);
 
 	assert_eq!(actual, 405);
 }
@@ -203,7 +203,7 @@ fn example_is_correct()
 fn solution_is_correct()
 {
 	let path = Path::new("../aoc-2023/input-13");
-	let actual = solution_from(&path, solution);
+	let actual = solution_from(&path, |input| solution(input, 0));
 
 	assert_eq!(actual, 28895);
 }
