@@ -5,6 +5,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+itertools = "0.12.0"
 maplit = "1.0.2"
 rstest = "0.18.2"
 aoc-2023 = { path = "../aoc-2023" }
