@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Direction
 {
 	North,
@@ -9,7 +9,7 @@ pub enum Direction
 	East,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Map
 {
 	data: Vec<char>,
@@ -123,9 +123,9 @@ impl Map
 					'O' =>
 					{
 						self.move_object(x, y, x, free_y);
-						free_y -= 1;
+						free_y = free_y.max(1) - 1;
 					}
-					'#' => free_y = y - 1,
+					'#' => free_y = y.max(1) - 1,
 					_ => panic!(),
 				}
 			}
@@ -167,9 +167,9 @@ impl Map
 					'O' =>
 					{
 						self.move_object(x, y, free_x, y);
-						free_x -= 1;
+						free_x = free_x.max(1) - 1;
 					}
-					'#' => free_x = x - 1,
+					'#' => free_x = x.max(1) - 1,
 					_ => panic!(),
 				}
 			}
