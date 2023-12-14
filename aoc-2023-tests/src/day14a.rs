@@ -1,10 +1,9 @@
 use std::path::Path;
-use itertools::Itertools;
 use rstest::*;
 use aoc_2023::solution_from;
 use aoc_2023::day14a::solution;
+use aoc_2023::day14a::Direction;
 use aoc_2023::day14a::Map;
-use aoc_2023::day14a::Object;
 
 #[test]
 fn map_from_vec_str_works()
@@ -18,10 +17,10 @@ fn map_from_vec_str_works()
 	let actual = Map::from(input.as_slice());
 
 	let expected = Map::new(
-		".#...#",
+		".#.O.#",
 		3,
 		2,
-		vec![Object::new(0, 1)]);
+		Direction::North);
 	assert_eq!(actual, expected);
 }
 
@@ -29,7 +28,7 @@ fn map_from_vec_str_works()
 #[case(0, 0, Some('.'))]
 #[case(1, 0, Some('#'))]
 #[case(3, 0, None)]
-#[case(0, 1, Some('.'))]
+#[case(0, 1, Some('O'))]
 #[case(1, 1, Some('.'))]
 #[case(2, 1, Some('#'))]
 #[case(0, 2, None)]
@@ -45,82 +44,95 @@ fn map_at_works(#[case] x: usize, #[case] y: usize, #[case] expected: Option<cha
 	assert_eq!(actual, expected);
 }
 
-#[test]
-fn map_orders_objects_by_x_then_by_y()
-{
-	let subject = create_map(&[
-		".#O",
-		"O.#",
-		"#.O",
-	]);
-
-	let actual = subject
-		.get_objects()
-		.cloned()
-		.collect_vec();
-
-	let expected = vec!
-	[
-		Object::new(0, 1),
-		Object::new(2, 0),
-		Object::new(2, 2),
-	];
-	assert_eq!(actual, expected);
-}
-
 #[rstest]
 #[case(
 	&[
 		".",
 	],
-	(vec![], false),
+	Direction::North,
+	&[
+		".",
+	],
 )]
 #[case(
 	&[
 		"O",
 	],
-	(vec![
-		Object::new(0, 0),
-	], false),
+	Direction::North,
+	&[
+		"O",
+	],
 )]
 #[case(
 	&[
-		".O#O",
-		"O.OO"
+		"....",
+		"...#",
+		".O..",
+		"...O",
 	],
-	(vec![
-		Object::new(0, 0),
-		Object::new(1, 0),
-		Object::new(2, 1),
-		Object::new(3, 0),
-		Object::new(3, 1),
-	], true),
+	Direction::North,
+	&[
+		".O..",
+		"...#",
+		"...O",
+		"....",
+	],
 )]
 #[case(
 	&[
-		"OO#O",
-		"..OO"
+		"....",
+		"....",
+		".O..",
+		".#.O",
 	],
-	(vec![
-		Object::new(0, 0),
-		Object::new(1, 0),
-		Object::new(2, 1),
-		Object::new(3, 0),
-		Object::new(3, 1),
-	], false),
+	Direction::West,
+	&[
+		"....",
+		"....",
+		"O...",
+		".#O.",
+	],
 )]
-fn map_tick_moves_objects(#[case] input: &[&str], #[case] expected: (Vec<Object>, bool))
+#[case(
+	&[
+		".O..",
+		"....",
+		".#.O",
+		"....",
+	],
+	Direction::South,
+	&[
+		"....",
+		".O..",
+		".#..",
+		"...O",
+	],
+)]
+#[case(
+	&[
+		"....",
+		"O.#.",
+		"....",
+		"..O.",
+	],
+	Direction::East,
+	&[
+		"....",
+		".O#.",
+		"....",
+		"...O",
+	],
+)]
+fn map_tick_moves_objects(#[case] input: &[&str], #[case] direction: Direction, #[case] expected: &[&str])
 {
 	let mut subject = create_map(input);
+	subject.set_direction(direction);
 
-	let is_moved = subject.tick();
-	let objects = subject
-		.get_objects()
-		.cloned()
-		.collect_vec();
-	let actual = (objects, is_moved);
+	subject.tick();
 
-	assert_eq!(actual, expected);
+	let mut expected = create_map(expected);
+	expected.set_direction(direction);
+	assert_eq!(subject, expected);
 }
 
 #[test]
@@ -158,29 +170,9 @@ fn solution_is_correct()
 
 fn create_map(values: &[&str]) -> Map
 {
-	let data = values
-		.iter()
-		.flat_map(|line| line.chars())
-		.map(|c| match c
-		{
-			'O' => '.',
-			c => c,
-		})
-		.join("");
-
-	let objects = values
-		.iter()
-		.enumerate()
-		.flat_map(|(y, line)| line
-			.char_indices()
-			.filter(|(_, c)| *c == 'O')
-			.map(move |(x, _)| (x as i32, y as i32)))
-		.map(|(x, y)| Object::new(x, y))
-		.collect_vec();
-
 	Map::new(
-		&data,
+		&values.join(""),
 		values[0].len(),
 		values.len(),
-		objects)
+		Direction::North)
 }

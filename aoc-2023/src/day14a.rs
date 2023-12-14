@@ -1,60 +1,47 @@
 use itertools::Itertools;
 
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct Object
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Direction
 {
-	x: i32,
-	y: i32,
+	North,
+	West,
+	South,
+	East,
 }
 
 #[derive(Debug, PartialEq)]
 pub struct Map
 {
-	data: String,
+	data: Vec<char>,
 	width: usize,
 	height: usize,
-	objects: Vec<Object>,
-}
-
-impl Object
-{
-	pub fn new(x: i32, y: i32) -> Self
-	{
-		Self
-		{
-			x,
-			y,
-		}
-	}
+	direction: Direction,
 }
 
 impl Map
 {
-	pub fn new(data: &str, width: usize, height: usize, objects: Vec<Object>) -> Self
+	pub fn new(
+		data: &str,
+		width: usize,
+		height: usize,
+		direction: Direction) -> Self
 	{
 		assert_eq!(data.len(), width * height);
 
 		Self
 		{
-			data: data.to_string(),
+			data: data.chars().collect_vec(),
 			width,
 			height,
-			objects: Self::sorted_objects(objects),
+			direction,
 		}
-	}
-
-	fn sorted_objects(mut objects: Vec<Object>) -> Vec<Object>
-	{
-		objects.sort_by_key(|o| o.y);
-		objects.sort_by_key(|o| o.x);
-		objects
 	}
 
 	pub fn at(&self, x: usize, y: usize) -> Option<char>
 	{
 		if x < self.width && y < self.height
 		{
-			self.data.chars().nth(y * self.width + x)
+			Some(self.data[y * self.width + x])
 		}
 		else
 		{
@@ -62,41 +49,140 @@ impl Map
 		}
 	}
 
-	pub fn get_width(&self) -> usize
+	pub fn set_at(&mut self, x: usize, y: usize, value: char)
+	{
+		if x < self.width && y < self.height
+		{
+			self.data[y * self.width + x] = value;
+		}
+	}
+
+	pub fn width(&self) -> usize
 	{
 		self.width
 	}
 
-	pub fn get_height(&self) -> usize
+	pub fn height(&self) -> usize
 	{
 		self.height
 	}
 
-	pub fn get_objects(&self) -> impl Iterator<Item = &Object>
+	pub fn direction(&self) -> Direction
 	{
-		self.objects.iter()
+		self.direction
 	}
 
-	pub fn tick(&mut self) -> bool
+	pub fn set_direction(&mut self, direction: Direction)
 	{
-		let mut is_moved = false;
+		self.direction = direction;
+	}
 
-		let movable_indices = self.objects
-			.iter()
-			.enumerate()
-			.filter(|(_, object)| object.y > 0)
-			.filter(|(_, object)| self.at(object.x as usize, (object.y as usize) - 1) == Some('.'))
-			.filter(|(_, object)| !self.objects.iter().any(|other| (other.x == object.x) && (other.y == object.y - 1)))
-			.map(|(index, _)| index)
-			.collect_vec();
-
-		for index in movable_indices
+	pub fn tick(&mut self)
+	{
+		match self.direction
 		{
-			self.objects[index].y -= 1;
-			is_moved = true;
+			Direction::North => self.move_north(),
+			Direction::West => self.move_west(),
+			Direction::South => self.move_south(),
+			Direction::East => self.move_east(),
 		}
+	}
 
-		is_moved
+	fn move_north(&mut self)
+	{
+		for x in 0..self.width
+		{
+			let mut free_y = 0;
+			for y in 0..self.height
+			{
+				match self.at(x, y).unwrap()
+				{
+					'.' => {},
+					'O' =>
+					{
+						self.move_object(x, y, x, free_y);
+						free_y += 1;
+					}
+					'#' => free_y = y + 1,
+					_ => panic!(),
+				}
+			}
+		}
+	}
+
+	fn move_south(&mut self)
+	{
+		for x in 0..self.width
+		{
+			let mut free_y = self.height - 1;
+			for y in (0..self.height).rev()
+			{
+				match self.at(x, y).unwrap()
+				{
+					'.' => {},
+					'O' =>
+					{
+						self.move_object(x, y, x, free_y);
+						free_y -= 1;
+					}
+					'#' => free_y = y - 1,
+					_ => panic!(),
+				}
+			}
+		}
+	}
+
+	fn move_west(&mut self)
+	{
+		for y in 0..self.height
+		{
+			let mut free_x = 0;
+			for x in 0..self.width
+			{
+				match self.at(x, y).unwrap()
+				{
+					'.' => {},
+					'O' =>
+					{
+						self.move_object(x, y, free_x, y);
+						free_x += 1;
+					}
+					'#' => free_x = x + 1,
+					_ => panic!(),
+				}
+			}
+		}
+	}
+
+	fn move_east(&mut self)
+	{
+		for y in 0..self.height
+		{
+			let mut free_x = self.width - 1;
+			for x in (0..self.width).rev()
+			{
+				match self.at(x, y).unwrap()
+				{
+					'.' => {},
+					'O' =>
+					{
+						self.move_object(x, y, free_x, y);
+						free_x -= 1;
+					}
+					'#' => free_x = x - 1,
+					_ => panic!(),
+				}
+			}
+		}
+	}
+
+	fn move_object(&mut self, from_x: usize, from_y: usize, to_x: usize, to_y: usize)
+	{
+		if (from_x != to_x) || (from_y != to_y)
+		{
+			self.set_at(from_x, from_y, '.');
+			self.set_at(to_x, to_y, 'O');
+		}
 	}
 }
 
@@ -109,21 +195,6 @@ impl From<&[&str]> for Map
 		let data = value
 			.iter()
 			.flat_map(|line| line.chars())
-			.map(|c| match c
-			{
-				'O' => '.',
-				c => c,
-			})
-			.join("");
-
-		let objects = value
-			.iter()
-			.enumerate()
-			.flat_map(|(y, line)| line
-				.char_indices()
-				.filter(|(_, c)| *c == 'O')
-				.map(move |(x, _)| (x as i32, y as i32)))
-			.map(|(x, y)| Object::new(x, y))
 			.collect_vec();
 
 		Self
@@ -131,7 +202,7 @@ impl From<&[&str]> for Map
 			data,
 			width: value[0].len(),
 			height: value.len(),
-			objects: Self::sorted_objects(objects),
+			direction: Direction::North,
 		}
 	}
 }
@@ -140,12 +211,12 @@ pub fn solution(input: &Vec<&str>) -> u32
 {
 	let mut map = Map::from(input.as_slice());
 
-	while map.tick()
-	{
-	}
+	map.tick();
 
-	map
-		.get_objects()
-		.map(|object| map.height as u32 - object.y as u32)
+	(0..map.height())
+		.flat_map(|y| (0..map.width())
+			.map(move |x| (x, y)))
+		.filter(|&(x, y)| map.at(x as usize, y as usize) == Some('O'))
+		.map(|(_, y)| map.height() as u32 - y as u32)
 		.sum()
 }
