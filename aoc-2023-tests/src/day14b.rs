@@ -23,9 +23,7 @@ O.#..O.#.#
 
 	let actual = solution(&input);
 
-	// Wrong example result?
-	//assert_eq!(actual, 64);
-	assert_eq!(actual, 69);
+	assert_eq!(actual, 64);
 }
 
 #[test]
@@ -34,5 +32,5 @@ fn solution_is_correct()
 	let path = Path::new("../aoc-2023/input-14");
 	let actual = solution_from(&path, solution);
 
-	assert_eq!(actual, 93182);
+	assert_eq!(actual, 93102);
 }

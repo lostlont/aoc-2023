@@ -1,4 +1,4 @@
-use maplit::hashset;
+use maplit::hashmap;
 use crate::day14a::Direction;
 use crate::day14a::Map;
 
@@ -6,22 +6,41 @@ pub fn solution(input: &Vec<&str>) -> u32
 {
 	let mut map = Map::from(input.as_slice());
 
-	let mut traversed_maps = hashset!{};
+	let mut index = 0;
+	let mut traversed_maps = hashmap!{};
+	let mut cycle: Option<(u32, u32)> = None;
 
-	for _ in 0..1000000000
+	const STEP_COUNT: u32 = 1000000000;
+	while index < STEP_COUNT
 	{
+		if let Some(cycle) = cycle
+		{
+			if (index % cycle.1) == (STEP_COUNT % cycle.1)
+			{
+				break;
+			}
+		}
+		else
+		{
+			if let Some(&old_index) = traversed_maps.get(&map)
+			{
+				let cycle_start = old_index;
+				let cycle_length = index - old_index;
+				cycle = Some((cycle_start, cycle_length));
+			}
+			else
+			{
+				traversed_maps.insert(map.clone(), index);
+			}
+		}
+
 		for direction in [Direction::North, Direction::West, Direction::South, Direction::East]
 		{
 			map.set_direction(direction);
 			map.tick();
 		}
 
-		if traversed_maps.contains(&map)
-		{
-			break;
-		}
-
-		traversed_maps.insert(map.clone());
+		index += 1;
 	}
 
 	(0..map.height())
@@ -30,17 +49,4 @@ pub fn solution(input: &Vec<&str>) -> u32
 		.filter(|&(x, y)| map.at(x as usize, y as usize) == Some('O'))
 		.map(|(_, y)| map.height() as u32 - y as u32)
 		.sum()
-}
-
-fn debug_map(map: &Map)
-{
-	for y in 0..map.height()
-	{
-		for x in 0..map.width()
-		{
-			print!("{}", map.at(x, y).unwrap());
-		}
-		println!();
-	}
-	println!();
 }
