@@ -25,6 +25,7 @@ pub mod day12a;
 pub mod day13a;
 pub mod day14a;
 pub mod day14b;
+pub mod day15a;
 
 pub fn solution_from<T>(path: &Path, solution: impl Fn(&Vec<&str>) -> T) -> T
 {
@@ -46,4 +47,18 @@ pub fn solution_from<T>(path: &Path, solution: impl Fn(&Vec<&str>) -> T) -> T
 		.collect();
 
 	solution(&input)
+}
+
+pub fn solution_from_reader<TSolution, TResult>(path: &Path, solution: TSolution) -> TResult
+where
+	TSolution: Fn(BufReader<File>) -> TResult,
+{
+	let file = File::open(&path)
+		.expect(
+			&format!(
+				"Couldn't open file {}!",
+				path.display()));
+	let reader = BufReader::new(file);
+
+	solution(reader)
 }
