@@ -29,6 +29,7 @@ pub mod day14b;
 pub mod day15a;
 pub mod day15b;
 pub mod day16a;
+pub mod day16b;
 
 pub fn solution_from<T>(path: &Path, solution: impl Fn(&Vec<&str>) -> T) -> T
 {

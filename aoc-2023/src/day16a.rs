@@ -122,7 +122,7 @@ impl BitOr for Flow
 	}
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Field
 {
 	cells: Map<Cell>,
