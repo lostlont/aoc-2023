@@ -3,6 +3,7 @@ use std::io::BufRead;
 use std::io::BufReader;
 use std::path::Path;
 
+pub mod common;
 pub mod day01a;
 pub mod day01b;
 pub mod day02a;
@@ -27,6 +28,7 @@ pub mod day14a;
 pub mod day14b;
 pub mod day15a;
 pub mod day15b;
+pub mod day16a;
 
 pub fn solution_from<T>(path: &Path, solution: impl Fn(&Vec<&str>) -> T) -> T
 {

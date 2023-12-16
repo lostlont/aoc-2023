@@ -1,3 +1,4 @@
+#[cfg(test)] mod common;
 #[cfg(test)] mod day01a;
 #[cfg(test)] mod day01b;
 #[cfg(test)] mod day02a;
@@ -23,3 +24,4 @@
 #[cfg(test)] mod day14b;
 #[cfg(test)] mod day15a;
 #[cfg(test)] mod day15b;
+#[cfg(test)] mod day16a;
