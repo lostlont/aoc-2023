@@ -1,3 +1,4 @@
+use std::io::BufRead;
 use itertools::Itertools;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -42,6 +43,38 @@ impl<TValue> Map<TValue>
 			width: value[0].len(),
 			height: value.len(),
 		}
+	}
+
+	pub fn from_read(input: impl BufRead) -> Self
+	where
+		TValue: From<char>,
+	{
+		let input = input
+			.lines()
+			.map(|line| line.expect("Couldn't read input line!"))
+			.collect_vec();
+		let values = input
+			.iter()
+			.map(|line| &line[..])
+			.collect_vec();
+		let values = values.as_slice();
+		Self::from(values)
+	}
+
+	pub fn from_read_parser(input: impl BufRead, parser: impl Fn(char) -> TValue) -> Self
+	where
+		TValue: From<char>,
+	{
+		let input = input
+			.lines()
+			.map(|line| line.expect("Couldn't read input line!"))
+			.collect_vec();
+		let values = input
+			.iter()
+			.map(|line| &line[..])
+			.collect_vec();
+		let values = values.as_slice();
+		Self::from_str_parser(values, parser)
 	}
 
 	pub fn at(&self, x: usize, y: usize) -> Option<&TValue>
